@@ -69,7 +69,6 @@ int main()
     sort(camList.begin() + 1, camList.end(), cmp);
     //for (auto k: camList) cout << k.x << " " << k.y <<" \t";cout<<"\n";
 
-    int lastBegin = 0, lastEnd = 0;
     for (int Begin = 1; Begin < camList.size(); Begin ++)
     {
         /// moi nhom (cung y): Begin -> End
@@ -110,7 +109,13 @@ int main()
         }
 
         /// xet cac cam con lai: Begin + 1, End - 1, Begin + 2, End - 2, ...
-        if (trace[camList[End].id] != -2)
+        if ((trace[camList[End].id] == -2) || (trace[camList[End].id] == camList[Begin].id)
+            || (trace[camList[Begin].id] == camList[End].id))
+            {
+                for (int i = Begin + 1; i <= End; i ++)
+                    trace[camList[i].id] = Begin;
+            }
+        else
         {
             int i = Begin + 1, j = End - 1;
             /// xet i tang tu Begin+1 va j giam tu End-1
@@ -154,8 +159,6 @@ int main()
             }
         }
         //cout<<"\n";
-        lastBegin = Begin;
-        lastEnd = End;
         Begin = End;
     }
 
