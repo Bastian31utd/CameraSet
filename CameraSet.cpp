@@ -1,13 +1,13 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-int n, ans;
+int n, ans = 0, maxX = 0, maxY = 0;
 struct cam
 {
     int x, y, id;
 };
 vector<cam> camList;
-vector<int> trace;
+vector<int> trace, path[100010];
 
 bool cmp(cam i, cam j)
 {
@@ -23,16 +23,24 @@ int dist(cam A, cam B)
 int cal(cam A, int pos)
 {
     /// TH1:
-    int minDist = min(abs(A.x), abs(A.y)), minId = 0;
-    if (abs(A.x) <= abs(A.y))
+    int minDist, minId = 0, check = 0;
+    check = min(abs(A.y), maxY) >= min(abs(A.x), maxX);
+    if (A.y == 0) check = 0;
+    if (A.x == 0) check = 1;
+
+    if (check)
     {
         /// di tu Oy
         trace[A.id] = -2;
+        minDist = abs(A.x);
+        maxY = max(maxY, abs(A.y));
     }
     else
     {
         /// di tu Ox
         trace[A.id] = -1;
+        minDist = abs(A.y);
+        maxX = max(maxX, abs(A.x));
     }
 
     /// TH2: di tu cac cam co y be hon
@@ -77,7 +85,7 @@ int main()
             if ((End + 1 == camList.size()) || (camList[End].y != camList[End+1].y)) break;
 
         int pre, res;
-        //cout << lastBegin << " " << lastEnd << "   " << Begin << " " << End << "\n";
+        //cout << Begin << " " << End << "\n";
 
         /// xet End: cam co x lon nhat nhom
         pre = cal(camList[End], Begin);
@@ -89,11 +97,19 @@ int main()
         {
             res = cal(camList[Begin], Begin);
             if (res > dist(camList[Begin], camList[End]))
-            {
-                res = dist(camList[Begin], camList[End]);
-                trace[camList[Begin].id] = camList[End].id;
-                /// di tu End
-            }
+                if (trace[camList[End].id] != -2)
+                {
+                    res = dist(camList[Begin], camList[End]);
+                    trace[camList[Begin].id] = camList[End].id;
+                    /// di tu End
+                }
+                else
+                {
+                    res = 0;
+                    trace[camList[Begin].id] = -2;
+                    trace[camList[End].id] = camList[Begin].id;
+                    /// cung di tu Oy
+                }
             else
                 if (pre > dist(camList[Begin], camList[End]))
                 {
@@ -101,16 +117,13 @@ int main()
                     ans -= pre;
                     ans += dist(camList[Begin], camList[End]);
                     trace[camList[End].id] = camList[Begin].id;
-                    if (trace[camList[Begin].id] == -2) trace[camList[End].id] = -2;
-                    /// ca Begin va End deu di tu Oy
                 }
             //cout << "b "<<trace[camList[Begin].id] << " -> " << camList[Begin].id << "\n";
             ans += res;
         }
 
         /// xet cac cam con lai: Begin + 1, End - 1, Begin + 2, End - 2, ...
-        if ((trace[camList[End].id] == -2) || (trace[camList[End].id] == camList[Begin].id)
-            || (trace[camList[Begin].id] == camList[End].id))
+        if ((trace[camList[End].id] == -2) || (trace[camList[End].id] == camList[Begin].id))
             {
                 for (int i = Begin + 1; i <= End; i ++)
                     trace[camList[i].id] = Begin;
@@ -162,13 +175,6 @@ int main()
         Begin = End;
     }
 
-    int maxX = 0, maxY = 0;
-    for (int i = 1; i <= n; i ++)
-    {
-        if (trace[camList[i].id] == -2) maxY = max(maxY, abs(camList[i].y));
-        if (trace[camList[i].id] == -1) maxX = max(maxX, abs(camList[i].x));
-    }
-
     ans += maxX + maxY;
     //cout << maxX << " " << maxY <<"\n";
     cout << ans << "\n";
@@ -179,6 +185,10 @@ int main()
         if (trace[i] >= 0) cout << trace[i];
         cout << " -> " << i << "\n";
     }
+
+    //for (int i = 1; i <= n; i ++)
+
+
 
     return 0;
 }
@@ -193,6 +203,14 @@ test 1
 4 0
 2 3
 ans = 17
+15
+4 -> 1
+Ox -> 2
+Ox -> 3
+6 -> 4
+Ox -> 5
+3 -> 6
+
 
 test 2
 10
@@ -207,7 +225,18 @@ test 2
 3 5
 7 7
 9 0
-ans = 29
+ans = 26
+Ox -> 1
+Ox -> 2
+Ox -> 3
+Ox -> 4
+9 -> 5
+1 -> 6
+Ox -> 7
+6 -> 8
+7 -> 9
+Ox -> 10
+
 
 test 3
 7
@@ -220,4 +249,20 @@ test 3
 -4 7
 -7 7
 ans = 18
+Oy -> 1
+Oy -> 2
+2 -> 3
+3 -> 4
+Oy -> 5
+5 -> 6
+5 -> 7
+
+
+test 4
+2
+0 0
+-2 2
+-3 2
+ans = 5
+
 */
