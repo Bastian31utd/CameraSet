@@ -11,7 +11,7 @@ vector<int> trace;
 
 bool cmp(cam i, cam j)
 {
-    return ((i.y < j.y) || ((i.y == j.y)&&(i.x < j.x)));
+    return ((abs(i.y) < abs(j.y)) || ((abs(i.y) == abs(j.y))&&(abs(i.x) < abs(j.x))));
     /// sort theo y tang, y bang nhau (cung nhom) thi sort theo x tang
 }
 
@@ -23,8 +23,8 @@ int dist(cam A, cam B)
 int cal(cam A, int pos)
 {
     /// TH1:
-    int minDist = min(A.x, A.y), minId = 0;
-    if (A.x <= A.y)
+    int minDist = min(abs(A.x), abs(A.y)), minId = 0;
+    if (abs(A.x) <= abs(A.y))
     {
         /// di tu Oy
         trace[A.id] = -2;
@@ -165,8 +165,8 @@ int main()
     int maxX = 0, maxY = 0;
     for (int i = 1; i <= n; i ++)
     {
-        if (trace[camList[i].id] == -2) maxY = max(maxY, camList[i].y);
-        if (trace[camList[i].id] == -1) maxX = max(maxX, camList[i].x);
+        if (trace[camList[i].id] == -2) maxY = max(maxY, abs(camList[i].y));
+        if (trace[camList[i].id] == -1) maxX = max(maxX, abs(camList[i].x));
     }
 
     ans += maxX + maxY;
@@ -207,5 +207,17 @@ test 2
 3 5
 7 7
 9 0
-ans =
+ans = 29
+
+test 3
+7
+0 0
+0 1
+0 3
+-3 3
+-3 4
+-3 7
+-4 7
+-7 7
+ans = 18
 */
