@@ -1,13 +1,14 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-int n, ans;
+int n, ans = 0;
 struct cam
 {
     int x, y, id;
 };
 vector<cam> camList;
-vector<int> trace;
+vector<int> trace, path[100010], Next[100010];
+bool kt[100010];
 
 bool cmp(cam i, cam j)
 {
@@ -23,29 +24,51 @@ int dist(cam A, cam B)
 int cal(cam A, int pos)
 {
     /// TH1:
-    int minDist = min(abs(A.x), abs(A.y)), minId = 0;
+    int minDist, minId = 0, check = 0;
+
     if (abs(A.x) <= abs(A.y))
     {
         /// di tu Oy
         trace[A.id] = -2;
+        minDist = abs(A.x);
     }
     else
     {
         /// di tu Ox
         trace[A.id] = -1;
+        minDist = abs(A.y);
     }
 
     /// TH2: di tu cac cam co y be hon
     for (int k = 1; k < pos; k ++)
-        if (dist(A, camList[k]) < minDist)
-        {
-            minDist = dist(A, camList[k]);
-            minId = camList[k].id;
-        }
+        if (dist(A, camList[k]) <= minDist)
+            if (dist(A, camList[k]) < minDist)
+            {
+                minDist = dist(A, camList[k]);
+                minId = camList[k].id;
+            }
+            else
+            {
+                if (((trace[A.id] == -2)&&(camList[k].x == 0)) || ((trace[A.id] == -1)&&(camList[k].y == 0)))
+                    minId = camList[k].id;
+            }
 
     if (minId > 0) trace[A.id] = minId;
 
     return minDist;
+}
+
+void dfs(int u, int start)
+{
+    for (int i = 1; i <= start; i ++) cout << " ";
+    cout << u << "\n";
+
+    for (int v: Next[u])
+        if (!kt[v])
+        {
+            dfs(v, start + 1);
+            kt[v] = 1;
+        }
 }
 
 int main()
@@ -77,7 +100,7 @@ int main()
             if ((End + 1 == camList.size()) || (camList[End].y != camList[End+1].y)) break;
 
         int pre, res;
-        //cout << lastBegin << " " << lastEnd << "   " << Begin << " " << End << "\n";
+        //cout << Begin << " " << End << "\n";
 
         /// xet End: cam co x lon nhat nhom
         pre = cal(camList[End], Begin);
@@ -88,12 +111,20 @@ int main()
         if (Begin < End)
         {
             res = cal(camList[Begin], Begin);
-            if (res > dist(camList[Begin], camList[End]))
-            {
-                res = dist(camList[Begin], camList[End]);
-                trace[camList[Begin].id] = camList[End].id;
-                /// di tu End
-            }
+            if (res > dist(camList[Begin], camList[End]) + pre)
+                if (trace[camList[End].id] != -2)
+                {
+                    res = dist(camList[Begin], camList[End]);
+                    trace[camList[Begin].id] = camList[End].id;
+                    /// di tu End
+                }
+                else
+                {
+                    res = 0;
+                    trace[camList[Begin].id] = -2;
+                    trace[camList[End].id] = camList[Begin].id;
+                    /// cung di tu Oy
+                }
             else
                 if (pre > dist(camList[Begin], camList[End]))
                 {
@@ -101,19 +132,16 @@ int main()
                     ans -= pre;
                     ans += dist(camList[Begin], camList[End]);
                     trace[camList[End].id] = camList[Begin].id;
-                    if (trace[camList[Begin].id] == -2) trace[camList[End].id] = -2;
-                    /// ca Begin va End deu di tu Oy
                 }
             //cout << "b "<<trace[camList[Begin].id] << " -> " << camList[Begin].id << "\n";
             ans += res;
         }
 
         /// xet cac cam con lai: Begin + 1, End - 1, Begin + 2, End - 2, ...
-        if ((trace[camList[End].id] == -2) || (trace[camList[End].id] == camList[Begin].id)
-            || (trace[camList[Begin].id] == camList[End].id))
+        if ((trace[camList[End].id] == -2) || (trace[camList[End].id] == camList[Begin].id))
             {
                 for (int i = Begin + 1; i <= End; i ++)
-                    trace[camList[i].id] = Begin;
+                    trace[camList[i].id] = camList[Begin].id;
             }
         else
         {
@@ -174,11 +202,26 @@ int main()
     cout << ans << "\n";
     for (int i = 1; i <= n; i ++)
     {
-        if (trace[i] == -1) cout << "Ox";
-        if (trace[i] == -2) cout << "Oy";
-        if (trace[i] >= 0) cout << trace[i];
+        if (trace[i] == -1)
+        {
+            cout << "Ox";
+            Next[0].push_back(i);
+        }
+        if (trace[i] == -2)
+        {
+            cout << "Oy";
+            Next[0].push_back(i);
+        }
+        if (trace[i] >= 0)
+        {
+            cout << trace[i];
+            Next[trace[i]].push_back(i);
+        }
         cout << " -> " << i << "\n";
     }
+
+    cout << "\n";
+    dfs(0, 0);
 
     return 0;
 }
@@ -193,21 +236,39 @@ test 1
 4 0
 2 3
 ans = 17
+Oy -> 1
+Ox -> 2
+6 -> 3
+1 -> 4
+Ox -> 5
+Oy -> 6
+
 
 test 2
 10
 0 0
 2 1
+2 4
 3 0
-9 1
 7 0
 5 7
-2 4
+9 1
 8 3
 3 5
 7 7
 9 0
-ans = 29
+ans = 28
+Ox -> 1
+Oy -> 2
+Ox -> 3
+Ox -> 4
+8 -> 5
+Ox -> 6
+Ox -> 7
+2 -> 8
+5 -> 9
+Ox -> 10
+
 
 test 3
 7
@@ -220,4 +281,20 @@ test 3
 -4 7
 -7 7
 ans = 18
+Oy -> 1
+Oy -> 2
+2 -> 3
+3 -> 4
+Oy -> 5
+5 -> 6
+5 -> 7
+
+
+test 4
+2
+0 0
+-2 2
+-3 2
+ans = 5
+
 */
