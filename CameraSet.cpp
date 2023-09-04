@@ -1,7 +1,7 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-int n, ans = 0, maxX = 0, maxY = 0;
+int n, ans = 0;
 struct cam
 {
     int x, y, id;
@@ -24,23 +24,18 @@ int cal(cam A, int pos)
 {
     /// TH1:
     int minDist, minId = 0, check = 0;
-    check = min(abs(A.y), maxY) >= min(abs(A.x), maxX);
-    if (A.y == 0) check = 0;
-    if (A.x == 0) check = 1;
 
-    if (check)
+    if (abs(A.x) <= abs(A.y))
     {
         /// di tu Oy
         trace[A.id] = -2;
         minDist = abs(A.x);
-        maxY = max(maxY, abs(A.y));
     }
     else
     {
         /// di tu Ox
         trace[A.id] = -1;
         minDist = abs(A.y);
-        maxX = max(maxX, abs(A.x));
     }
 
     /// TH2: di tu cac cam co y be hon
@@ -96,7 +91,7 @@ int main()
         if (Begin < End)
         {
             res = cal(camList[Begin], Begin);
-            if (res > dist(camList[Begin], camList[End]))
+            if (res > dist(camList[Begin], camList[End]) + pre)
                 if (trace[camList[End].id] != -2)
                 {
                     res = dist(camList[Begin], camList[End]);
@@ -126,7 +121,7 @@ int main()
         if ((trace[camList[End].id] == -2) || (trace[camList[End].id] == camList[Begin].id))
             {
                 for (int i = Begin + 1; i <= End; i ++)
-                    trace[camList[i].id] = Begin;
+                    trace[camList[i].id] = camList[Begin].id;
             }
         else
         {
@@ -175,6 +170,13 @@ int main()
         Begin = End;
     }
 
+    int maxX = 0, maxY = 0;
+    for (int i = 1; i <= n; i ++)
+    {
+        if (trace[camList[i].id] == -2) maxY = max(maxY, abs(camList[i].y));
+        if (trace[camList[i].id] == -1) maxX = max(maxX, abs(camList[i].x));
+    }
+
     ans += maxX + maxY;
     //cout << maxX << " " << maxY <<"\n";
     cout << ans << "\n";
@@ -187,7 +189,6 @@ int main()
     }
 
     //for (int i = 1; i <= n; i ++)
-
 
 
     return 0;
@@ -203,38 +204,37 @@ test 1
 4 0
 2 3
 ans = 17
-15
-4 -> 1
+Oy -> 1
 Ox -> 2
-Ox -> 3
-6 -> 4
+6 -> 3
+1 -> 4
 Ox -> 5
-3 -> 6
+Oy -> 6
 
 
 test 2
 10
 0 0
 2 1
+2 4
 3 0
-9 1
 7 0
 5 7
-2 4
+9 1
 8 3
 3 5
 7 7
 9 0
-ans = 26
+ans = 28
 Ox -> 1
-Ox -> 2
+Oy -> 2
 Ox -> 3
 Ox -> 4
-9 -> 5
-1 -> 6
+8 -> 5
+Ox -> 6
 Ox -> 7
-6 -> 8
-7 -> 9
+2 -> 8
+5 -> 9
 Ox -> 10
 
 
