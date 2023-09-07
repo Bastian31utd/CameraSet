@@ -42,16 +42,17 @@ int cal(cam A, int pos)
     /// TH2: di tu cac cam co y be hon
     for (int k = 1; k < pos; k ++)
         if (dist(A, camList[k]) <= minDist)
+        {
             if (dist(A, camList[k]) < minDist)
             {
+                cout<<"X"<<k<<"\n";
                 minDist = dist(A, camList[k]);
                 minId = camList[k].id;
             }
-            else
-            {
-                if (((trace[A.id] == -2)&&(camList[k].x == 0)) || ((trace[A.id] == -1)&&(camList[k].y == 0)))
-                    minId = camList[k].id;
-            }
+            if (((trace[A.id] == -2)&&(camList[k].x == 0))
+                || ((trace[A.id] == -1)&&(camList[k].y == 0)))
+                minId = camList[k].id;
+        }
 
     if (minId > 0) trace[A.id] = minId;
 
