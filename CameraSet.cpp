@@ -7,7 +7,7 @@ struct cam
     int x, y, id;
 };
 vector<cam> camList;
-vector<int> trace, path[100010], Next[100010];
+vector<int> trace, mid, Next[100010];
 bool kt[100010];
 
 bool cmp(cam i, cam j)
@@ -45,7 +45,6 @@ int cal(cam A, int pos)
         {
             if (dist(A, camList[k]) < minDist)
             {
-                cout<<"X"<<k<<"\n";
                 minDist = dist(A, camList[k]);
                 minId = camList[k].id;
             }
@@ -74,8 +73,8 @@ void dfs(int u, int start)
 
 int main()
 {
-    //freopen("VD1.INP","r",stdin);
-    //freopen("VD1.OUT","w",stdout);
+    freopen("CameraSet.inp","r",stdin);
+    freopen("CameraSet.out","w",stdout);
     ios_base::sync_with_stdio(0);
     cin.tie(0);
     cout.tie(0);
@@ -88,6 +87,7 @@ int main()
         cin >> tmp.x >> tmp.y;
         camList.push_back(tmp);
         trace.push_back(0);
+        mid.push_back(0);
     }
 
     sort(camList.begin() + 1, camList.end(), cmp);
@@ -203,22 +203,33 @@ int main()
     cout << ans << "\n";
     for (int i = 1; i <= n; i ++)
     {
-        if (trace[i] == -1)
+        int k = trace[camList[i].id];
+        if (k == -1)
         {
-            cout << "Ox";
-            Next[0].push_back(i);
+            cout << "Tu";
+            if (camList[i].y != 0) 
+            {
+                mid[camList[i].id] = camList[i].x;
+                cout << " -> (" << mid[camList[i].id] << ", 0)";
+            }
+            Next[0].push_back(camList[i].id);
         }
-        if (trace[i] == -2)
+        if (k == -2)
         {
-            cout << "Oy";
-            Next[0].push_back(i);
+            cout << "Tu";
+            if (camList[i].x != 0) 
+            {
+                mid[camList[i].id] = camList[i].y;
+                cout << " -> (0, " << mid[camList[i].id] << ")";
+            }
+            Next[0].push_back(camList[i].id);
         }
-        if (trace[i] >= 0)
+        if (k >= 0)
         {
-            cout << trace[i];
-            Next[trace[i]].push_back(i);
+            cout << "Cam " << k << " (" << camList[k].x << ", " << camList[k].y << ")";
+            Next[k].push_back(camList[i].id);
         }
-        cout << " -> " << i << "\n";
+        cout << " -> Cam " << camList[i].id << " (" << camList[i].x << ", " << camList[i].y << ")\n";
     }
 
     cout << "\n";
@@ -237,13 +248,12 @@ test 1
 4 0
 2 3
 ans = 17
-Oy -> 1
-Ox -> 2
-6 -> 3
-1 -> 4
-Ox -> 5
-Oy -> 6
-
+Tu -> Cam 2 (2, 0)
+Tu -> Cam 5 (4, 0)
+Tu -> (0, 3) -> Cam 6 (2, 3)
+Cam 6 -> Cam 3 (4, 3)
+Tu -> (0, 6) -> Cam 1 (1, 6)
+Cam 1 -> Cam 4 (3, 6)
 
 test 2
 10
@@ -259,17 +269,16 @@ test 2
 7 7
 9 0
 ans = 28
-Ox -> 1
-Oy -> 2
-Ox -> 3
-Ox -> 4
-8 -> 5
-Ox -> 6
-Ox -> 7
-2 -> 8
-5 -> 9
-Ox -> 10
-
+Tu -> Cam 3 (3, 0)
+Tu -> Cam 4 (7, 0)
+Tu -> Cam 10 (9, 0)
+Tu -> (2, 0) -> Cam 1 (2, 1)
+Cam 10 -> Cam 6 (9, 1)
+Tu -> (8, 0) -> Cam 7 (8, 3)
+Tu -> (0, 4) -> Cam 2 (2, 4)
+Cam 2 -> Cam 8 (3, 5)
+Cam 8 -> Cam 5 (5, 7)
+Cam 5 -> Cam 9 (7, 7)
 
 test 3
 7
@@ -282,13 +291,13 @@ test 3
 -4 7
 -7 7
 ans = 18
-Oy -> 1
-Oy -> 2
-2 -> 3
-3 -> 4
-Oy -> 5
-5 -> 6
-5 -> 7
+Tu -> Cam 1 (0, 1)
+Tu -> Cam 2 (0, 3)
+Cam 2 -> Cam 3 (-3, 3)
+Cam 3 -> Cam 4 (-3, 4)
+Tu -> (0, 7) -> Cam 5 (-3, 7)
+Cam 5 -> Cam 6 (-4, 7)
+Cam 5 -> Cam 7 (-7, 7)
 
 
 test 4
@@ -297,5 +306,17 @@ test 4
 -2 2
 -3 2
 ans = 5
+
+test 5
+7
+0 0
+0 -1
+0 -2
+0 -4
+0 -5
+0 -7
+1 -3
+1 -4
+9
 
 */
