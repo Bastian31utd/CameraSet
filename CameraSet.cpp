@@ -1,13 +1,13 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-int n, ans = 0;
+int n, ans = 0, maxX = 0, maxY = 0, preMaxX = 0, preMaxY = 0;
 struct cam
 {
     int x, y, id;
 };
 vector<cam> camList;
-vector<int> trace, mid, Next[100010];
+vector<int> trace, mid, newId, Next[100010];
 bool kt[100010];
 
 bool cmp(cam i, cam j)
@@ -53,7 +53,7 @@ int cal(cam A, int pos)
                 minId = camList[k].id;
         }
 
-    if (minId > 0) trace[A.id] = minId;
+    if (minId > 0) trace[A.id] = minId;    
 
     return minDist;
 }
@@ -73,8 +73,8 @@ void dfs(int u, int start)
 
 int main()
 {
-    freopen("CameraSet.inp","r",stdin);
-    freopen("CameraSet.out","w",stdout);
+    //freopen("CameraSet.inp","r",stdin);
+    //freopen("CameraSet.out","w",stdout);
     ios_base::sync_with_stdio(0);
     cin.tie(0);
     cout.tie(0);
@@ -86,11 +86,13 @@ int main()
         tmp.id = i;
         cin >> tmp.x >> tmp.y;
         camList.push_back(tmp);
+        newId.push_back(0);
         trace.push_back(0);
         mid.push_back(0);
     }
 
     sort(camList.begin() + 1, camList.end(), cmp);
+    for (int i = 1; i <= n; i ++) newId[camList[i].id] = i;
     //for (auto k: camList) cout << k.x << " " << k.y <<" \t";cout<<"\n";
 
     for (int Begin = 1; Begin < camList.size(); Begin ++)
@@ -142,7 +144,7 @@ int main()
         if ((trace[camList[End].id] == -2) || (trace[camList[End].id] == camList[Begin].id))
             {
                 for (int i = Begin + 1; i <= End; i ++)
-                    trace[camList[i].id] = camList[Begin].id;
+                    trace[camList[i].id] = camList[i - 1].id;
             }
         else
         {
@@ -156,12 +158,12 @@ int main()
                 if (res > dist(camList[i-1], camList[i]))
                 {
                     res = dist(camList[i-1], camList[i]);
-                    trace[camList[i].id] = i - 1;
+                    trace[camList[i].id] = camList[i - 1].id;
                 }
-                if (res > dist(camList[i], camList[j+1]))
+                if (res > dist(camList[i], camList[j + 1]))
                 {
-                    res = dist(camList[i], camList[j+1]);
-                    trace[camList[i].id] = j + 1;
+                    res = dist(camList[i], camList[j + 1]);
+                    trace[camList[i].id] = camList[j + 1].id;
                 }
                 //cout << trace[camList[i].id] << " -> " << camList[i].id << "\n";
                 ans += res;
@@ -191,7 +193,6 @@ int main()
         Begin = End;
     }
 
-    int maxX = 0, maxY = 0;
     for (int i = 1; i <= n; i ++)
     {
         if (trace[camList[i].id] == -2) maxY = max(maxY, abs(camList[i].y));
@@ -207,7 +208,7 @@ int main()
         if (k == -1)
         {
             cout << "Tu";
-            if (camList[i].y != 0) 
+            if ((camList[i].x != 0) && (camList[i].y != 0)) 
             {
                 mid[camList[i].id] = camList[i].x;
                 cout << " -> (" << mid[camList[i].id] << ", 0)";
@@ -217,7 +218,7 @@ int main()
         if (k == -2)
         {
             cout << "Tu";
-            if (camList[i].x != 0) 
+            if ((camList[i].x != 0) && (camList[i].y != 0))
             {
                 mid[camList[i].id] = camList[i].y;
                 cout << " -> (0, " << mid[camList[i].id] << ")";
@@ -226,7 +227,7 @@ int main()
         }
         if (k >= 0)
         {
-            cout << "Cam " << k << " (" << camList[k].x << ", " << camList[k].y << ")";
+            cout << "Cam " << k << " (" << camList[newId[k]].x << ", " << camList[newId[k]].y << ")";
             Next[k].push_back(camList[i].id);
         }
         cout << " -> Cam " << camList[i].id << " (" << camList[i].x << ", " << camList[i].y << ")\n";
@@ -251,9 +252,9 @@ ans = 17
 Tu -> Cam 2 (2, 0)
 Tu -> Cam 5 (4, 0)
 Tu -> (0, 3) -> Cam 6 (2, 3)
-Cam 6 -> Cam 3 (4, 3)
+Cam 6 (2, 3) -> Cam 3 (4, 3)
 Tu -> (0, 6) -> Cam 1 (1, 6)
-Cam 1 -> Cam 4 (3, 6)
+Cam 1 (1, 6) -> Cam 4 (3, 6)
 
 test 2
 10
@@ -317,6 +318,19 @@ test 5
 0 -7
 1 -3
 1 -4
-9
+ans = 9
+
+test 6
+8
+0 0
+0 1
+0 3 
+-6 0
+-6 2
+-3 3
+-3 4
+-5 3
+-5 4
+ans = 17
 
 */
